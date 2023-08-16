@@ -1,0 +1,37 @@
+Lab_5_Subtração de Fundo e Detecção de Movimento
+(a) Estude a teoria sobre Subtração de Fundo
+
+How to Use Background Subtraction Methods
+https://docs.opencv.org/4.x/d1/dc5/tutorial_background_subtraction.html
+
+Baixe do Moodle o programa lab5a.py e o video vtest.avi da pasta Lab5 - Arquivos
+
+
+(b) Estude os dois exercícios sobre Detecção de Movimento: subtração frame-a-frame e subtração da referência:
+
+----Diferença entre duas imagens - subtração frame-a-frame
+MOTION DETECTION AND TRACKING USING OPENCV AND PYTHON
+https://pynerds.blogspot.com/2021/09/motion-detection-and-tracking-using.html
+
+programa lab5b.py
+
+----Diferença da imagem de referência (foreground mask)
+Motion Detection OpenCV Python
+https://hackthedeveloper.com/motion-detection-opencv-python/
+
+programa lab5c.py
+
++++++
+--EXPERIMENTOS:
+
+(1) Desenvolva um programa para fazer a leitura de seu video
+--utilize os videos com movimento lento e com movimento rápido, gravados anteriormente.
+
+O programa deve realizar o deteção de movimento e rastreamento pelos métodos dos exercícios.
+Deve ainda fazer a gravação do video de saída.
+
+
+(2) Outro programa modificando o item (1), agora fazendo a leitura de imagem da webcam.
+Neste caso, o programa deve adicionalmente mostrar uma janela ao vivo com a imagem e o resultado da imagem de rastreamento.
+
+Realize este experimento com cada integrante do grupo e com um objeto colorido. . 
