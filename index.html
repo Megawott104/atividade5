@@ -35,15 +35,14 @@
     <p class="section-content">
       O processamento de vídeo desempenha um papel fundamental em diversas áreas, 
       como visão computacional, realidade virtual, jogos, vigilância por vídeo, entre outros. 
-      <br>O foco deste laboratório é introduzir os fundamentos do processamento de vídeo utilizando 
-      a biblioteca OpenCV e realizar atividades iniciais de captura de imagem e vídeo.<br> 
+      <br>O foco deste laboratório é explorar o processo de subtração de fundo, em particular
+      para detecção de movimento.<br> 
     </p>
     <p class="section-content">
       <h2 class="section-title">Objetivos</h2>
       <ul class="section-content">
-        <li>Iniciar os trabalhos no Ubuntu com o OpenCV</li>
-        <li>Conhecer os comandos para visualizar e gravar imagens e videos</li>
-        <li>Gravar um Vídeo e mostrá-lo no relatório</li>
+        <li>Conhecer Subtração de fundo</li>
+        <li>Aprender como subtração de fundo é usada para detectar movimento</li>
       </ul>
     </p>
       
@@ -127,9 +126,10 @@
     </p class="section-content">  
     <p class="section-content">
       <ul class="section-content">
-        <li class="item">Sistema Operacional Ubuntu 22.04: O sistema operacional Ubuntu 22.04 é uma distribuição Linux amplamente reconhecida pela sua estabilidade e facilidade de uso. Sua utilização
-          no laboratório proporciona um ambiente propício para a execução dos programas e tarefas relacionados ao processamento de vídeo.</li>
-        <li class="item">Webcam Digital Usb: Essa webcam é utilizada para realizar aquisição de imagens em tempo real durante as atividades práticas do laboratório.</li>
+        <li class="item">Sistema Operacional Windows 10: O sistema operacional Windows 10 é uma distribuição amplamente usada pela sua interface simples, e inclui várias melhorias
+          sobre a versão anterior. Apesar de não ter a mesma afinidade à programadores que os sistemas Linux, ainda existem diversas opções que viabilizam o desenvolvimento de software.
+        </li>
+        <li class="item">Webcam Digital: Essa webcam é utilizada para realizar aquisição de imagens em tempo real durante as atividades práticas do laboratório.</li>
         <li class="item">Linguagem: Python é uma linguagem de programação popular e de alto nível, amplamente utilizada no processamento de vídeo devido à sua facilidade de uso e à 
           disponibilidade de bibliotecas poderosas. Neste laboratório, é utilizada a versão 3.10 ou superior do Python.</li>
         <li class="item">Bibliotecas OpenCV (4.7), Numpy (1.19.5): O OpenCV (Open Source Computer Vision) é uma biblioteca de código aberto amplamente utilizada para o processamento de
@@ -137,53 +137,252 @@
           para manipular e processar imagens e vídeos no laboratório.</li>
         <li class="item">IDE Visual Studio Code: Visual Studio Code: O Visual Studio Code é uma IDE (Integrated Development Environment) popular e de código aberto, que fornece um ambiente de
           desenvolvimento completo para escrever, depurar e executar programas em Python. É a IDE escolhida para o desenvolvimento das atividades práticas durante o laboratório.</li>
-      </ul>
+        <li class="item">Celular Samsung Galaxy A10: Este modelo de celular, apesar de ultrapassado em comparação com os modelos atuais, possui uma câmera de alta resolução,
+          possibilitando a captura de imagens e vídeos para as atividades.
+        </li>
+        </ul>
 
     </p class="section-content"> 
 
     <h2 class="section-title">Métodos</h2>
     <p class="section-content">
-      Complementar ...
+      Este laboratório foi divido em duas partes. Na primeira, aplicamos os códigos de subtração de fundo e de detecção de movimento apresentados à dois vídeos:
+      um mostra um objeto se movimentando lentamente, e o outro mostra um objeto se movendo rapidamente. Na segunda, adaptamos esses algoritmos para usar a webcam como entrada,
+      ao invés dos arquivos de vídeo mencionados. Em ambas as partes, gravamos as saídas em arquivos de vídeo.
+    </p>
+    <p>
+      Estes são os arquivos de vídeos usados na primeira parte:
+      <video>
+        <source src="./videos/movimento lento.mp4" type="video/mp4">
+      </video>
+      <video>
+        <source src="./videos/movimento rápido.mp4.mp4" type="video/mp4">
+      </video>
+      
+
+    </p>
     
+    <div class="title">lab5a.py</div>
+    <div class="code-container" id="component-1">
+      <textarea readonly>
+        
+# import the opencv module
+import cv2 as cv
+
+# capturing video
+#capture = cv.VideoCapture("vtest.avi")
+#capture = cv.VideoCapture("movimento lento.mp4")
+#capture = cv.VideoCapture("movimento rápido.mp4")
+capture = cv.VideoCapture(0)
+
+backSub = cv.createBackgroundSubtractorMOG2()
+
+#backSub = cv.createBackgroundSubtractorKNN()
+
+# Define the codec and create VideoWriter object
+fourcc = cv.VideoWriter_fourcc(*'XVID')
+out1 = cv.VideoWriter('saidaWebcam.avi', fourcc, 20.0, (int(700),int(500)) )
+out2 = cv.VideoWriter('saida5a.avi', fourcc, 20.0, (int(700),int(500)) )
+
+if not capture.isOpened():
+ print('Unable to open')# + args.input)
+ exit(0)
+
+while True:
+ ret, frame = capture.read()
+ if frame is None:
+   break
+ 
+ #redimensionando os frames, pra facilitar a vizualização
+ small_frame = cv.resize(frame,(700,500))
+ fgMask = backSub.apply(small_frame)
+ #print(frame.shape)
+ 
+ 
+ cv.rectangle(small_frame, (10, 2), (100,20), (255,255,255), -1)
+ cv.putText(small_frame, str(capture.get(cv.CAP_PROP_POS_FRAMES)), (15, 15),
+ cv.FONT_HERSHEY_SIMPLEX, 0.5 , (0,0,0))
+ 
+ 
+ cv.imshow('Frame', small_frame)
+ cv.imshow('FG Mask', fgMask)
+
+ #converte de 8-bits pra RGB, pra possibilitar a gravação da máscara
+ newMask = cv.cvtColor(fgMask, cv.COLOR_GRAY2RGB)
+ out1.write(small_frame)
+ out2.write(newMask)
+
+ 
+ keyboard = cv.waitKey(30)
+ if keyboard == 'q' or keyboard == 27:
+   break
+
+      </textarea>
+      <button class="copy-button" onclick="copyCode('component-1')">Copiar</button>
+    </div>
+    <div class="title">Diagrama de Blocos lab5a.py</div>
+    <div>
+      <img src="./img/DB_lab5a.png" alt="Diagrama" class="fluxograma">
+    </div>
+    <div>
+      <p>Parte 1:</p>
+      <video>
+        <source src="./videos/Subtração de fundo - movimento lento.avi" type="video/avi">
+        <source src="./videos/Subtração de fundo - movimento rápido.avi" type="video/avi">
+      </video>
+      <p>Parte 2:</p>
+      <video>
+        <source src="./videos/saidaWebcam5a.avi" type="video/avi">
+      </video>
+      <video>
+        <source src="./videos/saida5a.avi" type="video/avi">
+      </video>
+    </div>
     
-    <div class="title">L1_1_img.py</div>
+    <div class="title">lab5b.py</div>
     <div class="code-container" id="component-1">
       <textarea readonly>
+        # import the opencv module
+import cv2
+
+# capturing video
+#capture = cv2.VideoCapture("vtest.avi")
+#capture = cv2.VideoCapture("movimento lento.mp4")
+#capture = cv2.VideoCapture("movimento rápido.mp4")
+capture = cv2.VideoCapture(0)
+
+# Define the codec and create VideoWriter object
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('saida5b.avi', fourcc, 10.0, (int(700),int(500)) )
+
+while capture.isOpened():
+    # to read frame by frame
+    _, img_1 = capture.read()
+    _, img_2 = capture.read()
+
+    #redimensionando os frames, pra facilitar a vizualização
+    small_frame1 = cv2.resize(img_1,(700,500))
+    #redimensionando os frames, pra facilitar a vizualização
+    small_frame2 = cv2.resize(img_2,(700,500))
+
+    # find difference between two frames
+    diff = cv2.absdiff(small_frame1, small_frame2)
+
+    # to convert the frame to grayscale
+    diff_gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+
+    # apply some blur to smoothen the frame
+    diff_blur = cv2.GaussianBlur(diff_gray, (5, 5), 0)
+
+    # to get the binary image
+    _, thresh_bin = cv2.threshold(diff_blur, 20, 255, cv2.THRESH_BINARY)
+
+    # to find contours
+    contours, hierarchy = cv2.findContours(thresh_bin, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    # to draw the bounding box when the motion is detected
+    for contour in contours:
+        x, y, w, h = cv2.boundingRect(contour)
+        if cv2.contourArea(contour) > 300:
+            cv2.rectangle(small_frame1, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    # cv2.drawContours(img_1, contours, -1, (0, 255, 0), 2)
+
+    # display the output
+    cv2.imshow("Detecting Motion...", small_frame1)
+    out.write(small_frame1)
+
+    if cv2.waitKey(100) == 13:
+        exit()
+
       </textarea>
       <button class="copy-button" onclick="copyCode('component-1')">Copiar</button>
     </div>
-    <div class="title">Diagrama de Blocos L1_1_img.py</div>
+    <div class="title">Diagrama de Blocos lab5b.py</div>
     <div>
-      <!-- <img src="./img/Diagrama_L1_img.py.png" alt="Diagrama" class="fluxograma"> -->
+      <img src="./img/DB_lab5b.png" alt="Diagrama" class="fluxograma">
     </div>
-    <div class="section-content">
-      Comentar ...
+    <div>
+      <p>Parte 1:</p>
+      <video>
+        <source src="./videos/Detecção de movimento - movimento lento.avi" type="video/avi">
+      </video>
+      <video>
+        <source src="./videos/Detecção de movimento - movimento rápido.avi.avi" type="video/avi">
+      </video>
+      <p>Parte 2:</p>
+      <video>
+        <source src="./videos/saida5b.avi" type="video/avi">
+      </video>
     </div>
-    <div class="title">L1_1_img.py</div>
+    <div class="title">lab5c.py</div>
     <div class="code-container" id="component-1">
       <textarea readonly>
+        import cv2
+
+#cap = cv2.VideoCapture("vtest.avi")
+#cap = cv2.VideoCapture("movimento lento.mp4")
+#cap = cv2.VideoCapture("movimento rápido.mp4")
+cap = cv2.VideoCapture(0)
+
+#mog = cv2.createBackgroundSubtractorMOG2()
+mog = cv2.createBackgroundSubtractorKNN()
+
+# Define the codec and create VideoWriter object
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('saida5c.avi', fourcc, 10.0, (int(700),int(500)) )
+
+while True:
+    ret, frame = cap.read()
+    #redimensionando os frames, pra facilitar a vizualização
+    small_frame = cv2.resize(frame,(700,500))
+
+    gray = cv2.cvtColor(small_frame, cv2.COLOR_BGR2GRAY)
+    
+    fgmask = mog.apply(gray)
+    
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    fgmask = cv2.erode(fgmask, kernel, iterations=1)
+    fgmask = cv2.dilate(fgmask, kernel, iterations=1)
+    
+    contours, hierarchy = cv2.findContours(fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    for contour in contours:
+        # Ignore small contours
+        if cv2.contourArea(contour) < 1000:
+            continue
+        
+        # Draw bounding box around contour
+        x, y, w, h = cv2.boundingRect(contour)
+        cv2.rectangle(small_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    
+    cv2.imshow('Motion Detection', small_frame)
+
+    out.write(small_frame)
+    if cv2.waitKey(1) == ord('q'):
+        break
+        
+cap.release()
+cv2.destroyAllWindows()
+
       </textarea>
       <button class="copy-button" onclick="copyCode('component-1')">Copiar</button>
     </div>
-    <div class="title">Diagrama de Blocos L1_1_img.py</div>
+    <div class="title">Diagrama de Blocos lab5c.py</div>
     <div>
-      <!-- <img src="./img/Diagrama_L1_img.py.png" alt="Diagrama" class="fluxograma"> -->
+      <img src="./img/DB_lab5c.png" alt="Diagrama" class="fluxograma">
     </div>
-    <div class="section-content">
-      Comentar ...
-    </div>
-    <div class="title">L1_1_img.py</div>
-    <div class="code-container" id="component-1">
-      <textarea readonly>
-      </textarea>
-      <button class="copy-button" onclick="copyCode('component-1')">Copiar</button>
-    </div>
-    <div class="title">Diagrama de Blocos L1_1_img.py</div>
-    <div>
-      <!-- <img src="./img/Diagrama_L1_img.py.png" alt="Diagrama" class="fluxograma"> -->
-    </div>
-    <div class="section-content">
-      Comentar ...
+    <<div>
+      <p>Parte 1:</p>
+      <video>
+        <source src="./videos/Detecção de movimento 2 - movimento lento.avi" type="video/avi">
+      </video>
+      <video>
+        <source src="./videos/Detecção de movimento 2 - movimento rápido.avi" type="video/avi">
+      </video>
+      <p>Parte 2:</p>
+      <video>
+        <source src="./videos/saida5c.avi" type="video/avi">
+      </video>
     </div>
 
     <h2 class="section-title">Resultados e Análises</h2>
@@ -191,12 +390,17 @@
       Durante a execução das atividades propostas, foram obtidos os seguintes resultados:
     </p>
     <p class="section-content">
-      Comentar ... 
+      Todos os algoritmos conseguem detectar movimento de forma satisfatória. O algoritmo de subtração lab5a é capaz de detectar objetos que
+      não pertencam ao plano de fundo, mostrando-os em cor branca. O algoritmo lab5b compara dois quadros subsequentes, e usa a diferença entre
+      eles para detectar movimento, que é destacado com um retângulo verde. O código lab5c, por sua vez, combina aspectos dos outros dois, mostrando-se
+      mais sensível aos movimentos.
     </p>
   <div class="section">
     <h2 class="section-title">Conclusões e Comentários Finais</h2>
     <p class="section-content">
-      Comentar ...
+      O desenvolvimento de um algoritmo de detecção de movimento é relativamente simples com o OpenCV. A biblioteca conta com métodos que retornam uma matriz binária,
+      que representa a diferença entre o fundo e objetos que podem se mover. E é possível não só usar essa matriz para a detecção, como também podemos simplesmente
+      usar a diferença entre frames para isso. Estas implementações são abordagens simples e efetivas, que abrem as portas para projetos mais complexos que fazem uso dessa detecção.
     </p>
   </div>
 
